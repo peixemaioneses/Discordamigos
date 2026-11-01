@@ -1,0 +1,13 @@
+{
+  "name": "sala-de-voz",
+  "version": "1.0.0",
+  "description": "Salas com voz, chat e transmissão de tela via WebRTC",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5"
+  }
+}

@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sala de voz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap">
+<style>
+  :root {
+    --fundo: #10151c;
+    --painel: #18202b;
+    --linha: #27323f;
+    --texto: #e6edf3;
+    --suave: #8b9aab;
+    --acento: #6ea8ff;
+    --perigo: #ff6b6b;
+    --raio: 10px;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--fundo);
+    color: var(--texto);
+    font-family: "Manrope", system-ui, sans-serif;
+    font-size: 15px;
+  }
+  button, input { font: inherit; color: inherit; }
+  button:focus-visible, input:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+  .oculto { display: none !important; }
+
+  /* ---------- entrada ---------- */
+  #entrada {
+    min-height: 100%;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+  }
+  #entrada form {
+    width: min(380px, 100%);
+    display: grid;
+    gap: 14px;
+  }
+  #entrada h1 { font-size: 34px; font-weight: 800; margin: 0 0 4px; letter-spacing: -0.02em; }
+  #entrada p { margin: 0 0 8px; color: var(--suave); }
+  label { display: grid; gap: 6px; color: var(--suave); font-size: 13px; }
+  input[type=text] {
+    background: var(--painel);
+    border: 1px solid var(--linha);
+    border-radius: var(--raio);
+    padding: 12px 14px;
+    color: var(--texto);
+  }
+  .botao {
+    background: var(--painel);
+    border: 1px solid var(--linha);
+    border-radius: var(--raio);
+    padding: 11px 16px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .botao:hover { border-color: var(--suave); }
+  .botao.primario { background: var(--acento); border-color: var(--acento); color: #0b1220; }
+  .botao.ativo { background: var(--acento); border-color: var(--acento); color: #0b1220; }
+  .botao.perigo { background: var(--perigo); border-color: var(--perigo); color: #240a0a; }
+  #erro { color: var(--perigo); min-height: 1.2em; margin: 0; }
+
+  /* ---------- sala ---------- */
+  #sala {
+    height: 100%;
+    display: grid;
+    grid-template-columns: 220px 1fr 300px;
+  }
+  aside, #chat { background: var(--painel); display: flex; flex-direction: column; min-height: 0; }
+  aside { border-right: 1px solid var(--linha); padding: 18px 14px; gap: 16px; }
+  #chat { border-left: 1px solid var(--linha); }
+  aside h2 { font-size: 17px; margin: 0; overflow-wrap: anywhere; }
+  aside h3 { font-size: 13px; color: var(--suave); font-weight: 600; margin: 0 0 6px; }
+  #membros { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+  #membros li { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 8px; }
+  #membros li::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--acento); }
+
+  main { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+  #palco {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    gap: 10px;
+    padding: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    grid-auto-rows: minmax(180px, 1fr);
+    overflow: auto;
+  }
+  .tela {
+    position: relative;
+    background: #000;
+    border: 1px solid var(--linha);
+    border-radius: var(--raio);
+    overflow: hidden;
+    min-height: 0;
+  }
+  .tela video { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .tela .rotulo {
+    position: absolute; left: 8px; bottom: 8px;
+    background: rgba(16, 21, 28, 0.82);
+    padding: 4px 9px; border-radius: 6px; font-size: 13px;
+  }
+  .tela .expandir {
+    position: absolute; right: 8px; top: 8px;
+    background: rgba(16, 21, 28, 0.82); border: 0; border-radius: 6px;
+    padding: 5px 9px; cursor: pointer; font-size: 13px;
+  }
+  #vazio { margin: auto; color: var(--suave); text-align: center; padding: 24px; }
+
+  #controles {
+    display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
+    padding: 12px; border-top: 1px solid var(--linha); background: var(--painel);
+  }
+
+  #mensagens { flex: 1; overflow-y: auto; padding: 14px; display: grid; gap: 10px; align-content: start; }
+  .msg b { display: block; font-size: 13px; color: var(--acento); }
+  .msg span { overflow-wrap: anywhere; }
+  .msg.sistema { color: var(--suave); font-size: 13px; }
+  #formChat { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--linha); }
+  #formChat input { flex: 1; min-width: 0; }
+
+  @media (max-width: 900px) {
+    #sala { grid-template-columns: 1fr; grid-template-rows: auto 1fr 220px; }
+    aside { border-right: 0; border-bottom: 1px solid var(--linha); flex-direction: row; flex-wrap: wrap; align-items: center; padding: 10px 14px; }
+    #chat { border-left: 0; border-top: 1px solid var(--linha); }
+    #palco { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<section id="entrada">
+  <form id="formEntrada">
+    <div>
+      <h1>Sala de voz</h1>
+      <p>Converse por voz e texto e transmita sua tela para quem estiver na sala.</p>
+    </div>
+    <label>Seu nome
+      <input type="text" id="nome" maxlength="24" required autocomplete="nickname">
+    </label>
+    <label>Nome da sala
+      <input type="text" id="nomeSala" maxlength="40" required>
+    </label>
+    <button class="botao primario" type="submit">Entrar na sala</button>
+    <p id="erro" role="alert"></p>
+  </form>
+</section>
+
+<section id="sala" class="oculto">
+  <aside>
+    <h2 id="tituloSala"></h2>
+    <button class="botao" id="copiar">Copiar link de convite</button>
+    <div>
+      <h3>Na sala</h3>
+      <ul id="membros"></ul>
+    </div>
+  </aside>
+
+  <main>
+    <div id="palco">
+      <p id="vazio">Ninguém está transmitindo. Clique em “Compartilhar tela” para começar.</p>
+    </div>
+    <div id="controles">
+      <button class="botao" id="btnMic">Silenciar microfone</button>
+      <button class="botao" id="btnTela">Compartilhar tela</button>
+      <button class="botao perigo" id="btnSair">Sair</button>
+    </div>
+  </main>
+
+  <section id="chat">
+    <div id="mensagens" aria-live="polite"></div>
+    <form id="formChat">
+      <input type="text" id="textoChat" placeholder="Escreva uma mensagem" maxlength="500" autocomplete="off">
+      <button class="botao primario" type="submit">Enviar</button>
+    </form>
+  </section>
+</section>
+
+<div id="audios"></div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+const ICE = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
+
+let socket, meuNome, sala;
+let micStream = null;      // microfone
+let telaStream = null;     // transmissão de tela
+const pares = {};          // id -> { pc, nome, educado, fazendoOferta, ignorar, enviosTela }
+
+// ---------- entrada ----------
+const params = new URLSearchParams(location.search);
+$("nomeSala").value = params.get("sala") || "";
+$("nome").value = localStorage.getItem("nome") || "";
+
+$("formEntrada").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  meuNome = $("nome").value.trim();
+  sala = $("nomeSala").value.trim();
+  localStorage.setItem("nome", meuNome);
+  $("erro").textContent = "";
+
+  try {
+    micStream = await navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: true, noiseSuppression: true },
+    });
+  } catch (err) {
+    // segue sem microfone: a pessoa ainda pode ouvir, ver telas e usar o chat
+    micStream = null;
+    mensagemSistema("Microfone indisponível. Você pode ouvir e conversar por texto.");
+  }
+
+  conectar();
+});
+
+function conectar() {
+  socket = io();
+
+  socket.on("connect", () => socket.emit("entrar", { sala, nome: meuNome }));
+
+  socket.on("sala-cheia", () => {
+    $("erro").textContent = "Esta sala está cheia.";
+    socket.disconnect();
+  });
+
+  socket.on("participantes", (lista) => {
+    $("entrada").classList.add("oculto");
+    $("sala").classList.remove("oculto");
+    $("tituloSala").textContent = sala;
+    history.replaceState(null, "", "?sala=" + encodeURIComponent(sala));
+    adicionarMembro("eu", meuNome + " (você)");
+    lista.forEach((p) => criarPar(p.id, p.nome));
+  });
+
+  socket.on("entrou", (p) => {
+    criarPar(p.id, p.nome);
+    mensagemSistema(p.nome + " entrou na sala.");
+  });
+
+  socket.on("saiu", ({ id }) => {
+    if (pares[id]) mensagemSistema(pares[id].nome + " saiu da sala.");
+    removerPar(id);
+  });
+
+  socket.on("sinal", ({ de, dados }) => tratarSinal(de, dados));
+
+  socket.on("chat", ({ nome, texto }) => {
+    const div = document.createElement("div");
+    div.className = "msg";
+    const b = document.createElement("b");
+    b.textContent = nome;
+    const s = document.createElement("span");
+    s.textContent = texto;
+    div.append(b, s);
+    $("mensagens").append(div);
+    $("mensagens").scrollTop = 1e9;
+  });
+}
+
+// ---------- WebRTC (negociação perfeita) ----------
+function criarPar(id, nome) {
+  if (pares[id]) return;
+  const pc = new RTCPeerConnection(ICE);
+  const par = {
+    pc, nome,
+    educado: socket.id < id,
+    fazendoOferta: false,
+    ignorar: false,
+    enviosTela: [],
+  };
+  pares[id] = par;
+  adicionarMembro(id, nome);
+
+  pc.onicecandidate = ({ candidate }) => {
+    if (candidate) socket.emit("sinal", { para: id, dados: { candidato: candidate } });
+  };
+
+  pc.onnegotiationneeded = async () => {
+    try {
+      par.fazendoOferta = true;
+      await pc.setLocalDescription();
+      socket.emit("sinal", { para: id, dados: { descricao: pc.localDescription } });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      par.fazendoOferta = false;
+    }
+  };
+
+  pc.ontrack = ({ streams }) => {
+    const stream = streams[0];
+    if (!stream || stream.__tratado) return;
+    stream.__tratado = true;
+    receberStream(id, nome, stream);
+  };
+
+  // envia o que já estamos mandando
+  if (micStream) micStream.getTracks().forEach((t) => pc.addTrack(t, micStream));
+  else pc.addTransceiver("audio", { direction: "recvonly" });
+  if (telaStream) enviarTela(par);
+}
+
+async function tratarSinal(de, { descricao, candidato }) {
+  const par = pares[de];
+  if (!par) return;
+  const { pc } = par;
+  try {
+    if (descricao) {
+      const colisao = descricao.type === "offer" &&
+        (par.fazendoOferta || pc.signalingState !== "stable");
+      par.ignorar = !par.educado && colisao;
+      if (par.ignorar) return;
+      await pc.setRemoteDescription(descricao);
+      if (descricao.type === "offer") {
+        await pc.setLocalDescription();
+        socket.emit("sinal", { para: de, dados: { descricao: pc.localDescription } });
+      }
+    } else if (candidato) {
+      try { await pc.addIceCandidate(candidato); }
+      catch (err) { if (!par.ignorar) throw err; }
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+function removerPar(id) {
+  const par = pares[id];
+  if (!par) return;
+  par.pc.close();
+  delete pares[id];
+  document.querySelectorAll(`[data-dono="${id}"]`).forEach((el) => el.remove());
+  const li = document.querySelector(`[data-membro="${id}"]`);
+  if (li) li.remove();
+  atualizarVazio();
+}
+
+// ---------- recebimento de mídia ----------
+function receberStream(id, nome, stream) {
+  const temVideo = stream.getVideoTracks().length > 0;
+  // um stream só de áudio (microfone) vira um <audio> invisível
+  if (!temVideo) {
+    const a = document.createElement("audio");
+    a.autoplay = true;
+    a.srcObject = stream;
+    a.dataset.dono = id;
+    $("audios").append(a);
+    stream.onremovetrack = () => a.remove();
+    return;
+  }
+  const tela = criarTela(nome + " está transmitindo", stream, false);
+  tela.dataset.dono = id;
+  stream.onremovetrack = () => {
+    if (stream.getTracks().length === 0) { tela.remove(); atualizarVazio(); }
+  };
+  // se o vídeo termina sem removetrack, limpa pelo evento ended
+  stream.getVideoTracks()[0].onended = () => { tela.remove(); atualizarVazio(); };
+}
+
+function criarTela(rotulo, stream, mudo) {
+  const div = document.createElement("div");
+  div.className = "tela";
+  const v = document.createElement("video");
+  v.autoplay = true;
+  v.playsInline = true;
+  v.muted = mudo; // a própria transmissão fica muda para evitar eco
+  v.srcObject = stream;
+  const r = document.createElement("span");
+  r.className = "rotulo";
+  r.textContent = rotulo;
+  const b = document.createElement("button");
+  b.className = "expandir";
+  b.textContent = "Tela cheia";
+  b.onclick = () => v.requestFullscreen && v.requestFullscreen();
+  div.append(v, r, b);
+  $("palco").append(div);
+  atualizarVazio();
+  return div;
+}
+
+function atualizarVazio() {
+  const tem = $("palco").querySelector(".tela");
+  $("vazio").classList.toggle("oculto", !!tem);
+}
+
+// ---------- transmissão de tela ----------
+function enviarTela(par) {
+  par.enviosTela = telaStream.getTracks().map((t) => par.pc.addTrack(t, telaStream));
+}
+
+$("btnTela").addEventListener("click", async () => {
+  if (telaStream) return pararTela();
+  try {
+    telaStream = await navigator.mediaDevices.getDisplayMedia({
+      video: { frameRate: 30 },
+      audio: true, // áudio do sistema/aba, se o navegador permitir
+    });
+  } catch (err) {
+    return; // a pessoa cancelou
+  }
+  Object.values(pares).forEach(enviarTela);
+
+  const previa = criarTela("Sua transmissão", telaStream, true);
+  previa.id = "previa";
+  $("btnTela").textContent = "Parar transmissão";
+  $("btnTela").classList.add("ativo");
+
+  // quando o usuário clica em "Parar compartilhamento" na barra do navegador
+  telaStream.getVideoTracks()[0].onended = pararTela;
+});
+
+function pararTela() {
+  if (!telaStream) return;
+  telaStream.getTracks().forEach((t) => t.stop());
+  Object.values(pares).forEach((par) => {
+    par.enviosTela.forEach((s) => { try { par.pc.removeTrack(s); } catch (e) {} });
+    par.enviosTela = [];
+  });
+  telaStream = null;
+  const p = $("previa");
+  if (p) p.remove();
+  atualizarVazio();
+  $("btnTela").textContent = "Compartilhar tela";
+  $("btnTela").classList.remove("ativo");
+}
+
+// ---------- controles ----------
+$("btnMic").addEventListener("click", () => {
+  if (!micStream) return;
+  const track = micStream.getAudioTracks()[0];
+  track.enabled = !track.enabled;
+  $("btnMic").textContent = track.enabled ? "Silenciar microfone" : "Ativar microfone";
+  $("btnMic").classList.toggle("ativo", !track.enabled);
+});
+
+$("btnSair").addEventListener("click", () => {
+  pararTela();
+  if (micStream) micStream.getTracks().forEach((t) => t.stop());
+  location.href = location.pathname + "?sala=" + encodeURIComponent(sala);
+});
+
+$("copiar").addEventListener("click", async () => {
+  const link = location.origin + location.pathname + "?sala=" + encodeURIComponent(sala);
+  try {
+    await navigator.clipboard.writeText(link);
+    $("copiar").textContent = "Link copiado";
+  } catch (e) {
+    prompt("Copie o link:", link);
+  }
+  setTimeout(() => ($("copiar").textContent = "Copiar link de convite"), 2000);
+});
+
+// ---------- chat e lista de membros ----------
+$("formChat").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const t = $("textoChat").value.trim();
+  if (!t) return;
+  socket.emit("chat", t);
+  $("textoChat").value = "";
+});
+
+function mensagemSistema(texto) {
+  const d = document.createElement("div");
+  d.className = "msg sistema";
+  d.textContent = texto;
+  $("mensagens").append(d);
+  $("mensagens").scrollTop = 1e9;
+}
+
+function adicionarMembro(id, nome) {
+  const li = document.createElement("li");
+  li.dataset.membro = id;
+  li.textContent = nome;
+  $("membros").append(li);
+}
+</script>
+</body>
+</html>
