@@ -8,476 +8,1197 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap">
 <style>
   :root {
-    --fundo: #10151c;
-    --painel: #18202b;
-    --linha: #27323f;
-    --texto: #e6edf3;
-    --suave: #8b9aab;
+    --fundo: #0f1318;
+    --lateral: #141a22;
+    --painel: #1a222c;
+    --elevado: #222c38;
+    --linha: #26313d;
+    --texto: #e8eef5;
+    --suave: #8d9bab;
     --acento: #6ea8ff;
+    --verde: #3ddc84;
     --perigo: #ff6b6b;
     --raio: 10px;
   }
   * { box-sizing: border-box; }
   html, body { height: 100%; margin: 0; }
-  body {
-    background: var(--fundo);
-    color: var(--texto);
-    font-family: "Manrope", system-ui, sans-serif;
-    font-size: 15px;
-  }
-  button, input { font: inherit; color: inherit; }
-  button:focus-visible, input:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+  body { background: var(--fundo); color: var(--texto); font-family: "Manrope", system-ui, sans-serif; font-size: 15px; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
   .oculto { display: none !important; }
+  ul { list-style: none; margin: 0; padding: 0; }
+  .ic { width: 18px; height: 18px; flex: none; }
+  .vermelho { color: var(--perigo); }
 
-  /* ---------- entrada ---------- */
-  #entrada {
-    min-height: 100%;
-    display: grid;
-    place-items: center;
-    padding: 24px;
-  }
-  #entrada form {
-    width: min(380px, 100%);
-    display: grid;
-    gap: 14px;
-  }
-  #entrada h1 { font-size: 34px; font-weight: 800; margin: 0 0 4px; letter-spacing: -0.02em; }
-  #entrada p { margin: 0 0 8px; color: var(--suave); }
-  label { display: grid; gap: 6px; color: var(--suave); font-size: 13px; }
-  input[type=text] {
-    background: var(--painel);
-    border: 1px solid var(--linha);
-    border-radius: var(--raio);
-    padding: 12px 14px;
-    color: var(--texto);
-  }
-  .botao {
-    background: var(--painel);
-    border: 1px solid var(--linha);
-    border-radius: var(--raio);
-    padding: 11px 16px;
-    cursor: pointer;
-    font-weight: 600;
-  }
+  .botao { background: var(--elevado); border: 1px solid var(--linha); border-radius: var(--raio); padding: 9px 14px; font-weight: 600; }
   .botao:hover { border-color: var(--suave); }
   .botao.primario { background: var(--acento); border-color: var(--acento); color: #0b1220; }
-  .botao.ativo { background: var(--acento); border-color: var(--acento); color: #0b1220; }
   .botao.perigo { background: var(--perigo); border-color: var(--perigo); color: #240a0a; }
-  #erro { color: var(--perigo); min-height: 1.2em; margin: 0; }
+  input[type=text], select {
+    width: 100%; background: var(--fundo); border: 1px solid var(--linha);
+    border-radius: var(--raio); padding: 11px 13px; color: var(--texto);
+  }
+  label { display: grid; gap: 6px; color: var(--suave); font-size: 13px; }
+  input[type=range] { width: 100%; accent-color: var(--acento); }
 
-  /* ---------- sala ---------- */
-  #sala {
-    height: 100%;
-    display: grid;
-    grid-template-columns: 220px 1fr 300px;
-  }
-  aside, #chat { background: var(--painel); display: flex; flex-direction: column; min-height: 0; }
-  aside { border-right: 1px solid var(--linha); padding: 18px 14px; gap: 16px; }
-  #chat { border-left: 1px solid var(--linha); }
-  aside h2 { font-size: 17px; margin: 0; overflow-wrap: anywhere; }
-  aside h3 { font-size: 13px; color: var(--suave); font-weight: 600; margin: 0 0 6px; }
-  #membros { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
-  #membros li { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 8px; }
-  #membros li::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--acento); }
+  /* ---------- entrada ---------- */
+  #entrada { min-height: 100%; display: grid; place-items: center; padding: 24px; }
+  #entrada form { width: min(380px, 100%); display: grid; gap: 14px; }
+  #entrada h1 { font-size: 34px; font-weight: 800; margin: 0 0 4px; letter-spacing: -0.02em; }
+  #entrada p { margin: 0; color: var(--suave); }
+  #erro { color: var(--perigo); min-height: 1.2em; }
 
-  main { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
-  #palco {
-    flex: 1;
-    min-height: 0;
-    display: grid;
-    gap: 10px;
-    padding: 12px;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    grid-auto-rows: minmax(180px, 1fr);
-    overflow: auto;
-  }
-  .tela {
-    position: relative;
-    background: #000;
-    border: 1px solid var(--linha);
-    border-radius: var(--raio);
-    overflow: hidden;
-    min-height: 0;
-  }
+  /* ---------- layout ---------- */
+  #app { height: 100%; display: grid; grid-template-columns: 264px minmax(0, 1fr) 232px; }
+  #lateral { background: var(--lateral); border-right: 1px solid var(--linha); display: flex; flex-direction: column; min-height: 0; }
+  #principal { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+  #membrosCol { background: var(--lateral); border-left: 1px solid var(--linha); padding: 14px 10px; overflow: auto; }
+
+  #cabServidor { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 14px; border-bottom: 1px solid var(--linha); }
+  #cabServidor h1 { font-size: 16px; margin: 0; overflow-wrap: anywhere; }
+  .iconeBtn { background: transparent; border: 0; border-radius: 8px; padding: 7px; color: var(--suave); display: grid; place-items: center; }
+  .iconeBtn:hover { background: var(--elevado); color: var(--texto); }
+  .iconeBtn.ligado { background: var(--acento); color: #0b1220; }
+
+  #rolagemLateral { flex: 1; overflow: auto; padding: 10px 8px; }
+  .grupoTitulo { display: flex; align-items: center; justify-content: space-between; padding: 12px 6px 4px; color: var(--suave); font-size: 13px; font-weight: 600; }
+  .canal, .pessoa { width: 100%; display: flex; align-items: center; gap: 8px; background: transparent; border: 0; border-radius: 8px; padding: 7px 8px; text-align: left; color: var(--suave); }
+  .canal:hover, .pessoa:hover { background: var(--elevado); color: var(--texto); }
+  .canal.ativo { background: var(--elevado); color: var(--texto); }
+  .canal.nova { color: var(--texto); font-weight: 800; }
+  .presentes { padding-left: 20px; }
+  .pessoa { color: var(--texto); padding: 5px 8px; }
+  .pessoa .nome { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pessoa .onde { color: var(--suave); font-size: 12px; }
+  .estados { display: inline-flex; align-items: center; gap: 4px; color: var(--suave); }
+  .estados .ic { width: 15px; height: 15px; }
+  .ao-vivo { background: var(--perigo); color: #240a0a; font-size: 11px; font-weight: 800; padding: 1px 6px; border-radius: 5px; }
+
+  .avatar { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 800; color: #0b1220; flex: none; }
+  .avatar.grande { width: 38px; height: 38px; font-size: 15px; }
+  .avatar.falando { box-shadow: 0 0 0 2px var(--lateral), 0 0 0 4px var(--verde); }
+
+  #painelVoz { padding: 10px 12px; border-top: 1px solid var(--linha); background: var(--painel); display: grid; gap: 8px; }
+  #painelVoz .status { color: var(--verde); font-weight: 700; font-size: 13px; }
+  #painelVoz .sub { color: var(--suave); font-size: 13px; }
+  #painelVoz .linha { display: flex; gap: 4px; }
+  #painelUsuario { display: flex; align-items: center; gap: 8px; padding: 10px 10px; border-top: 1px solid var(--linha); background: var(--painel); }
+  #painelUsuario .nome { flex: 1; min-width: 0; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  #topo { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--linha); background: var(--fundo); }
+  #topo h2 { margin: 0; font-size: 16px; }
+  #menuBtn { display: none; }
+
+  /* palco das transmissões */
+  #palco { max-height: 52%; overflow: auto; padding: 12px; border-bottom: 1px solid var(--linha); background: #0a0d11; }
+  #telas { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  .tela { position: relative; background: #000; border: 1px solid var(--linha); border-radius: var(--raio); overflow: hidden; aspect-ratio: 16 / 9; }
   .tela video { width: 100%; height: 100%; object-fit: contain; display: block; }
-  .tela .rotulo {
-    position: absolute; left: 8px; bottom: 8px;
-    background: rgba(16, 21, 28, 0.82);
-    padding: 4px 9px; border-radius: 6px; font-size: 13px;
-  }
-  .tela .expandir {
-    position: absolute; right: 8px; top: 8px;
-    background: rgba(16, 21, 28, 0.82); border: 0; border-radius: 6px;
-    padding: 5px 9px; cursor: pointer; font-size: 13px;
-  }
-  #vazio { margin: auto; color: var(--suave); text-align: center; padding: 24px; }
+  .tela video.espelho { transform: scaleX(-1); }
+  .tela .rotulo { position: absolute; left: 8px; top: 8px; background: rgba(15, 19, 24, 0.85); padding: 3px 9px; border-radius: 6px; font-size: 13px; }
+  .tela .capa { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 12px; text-align: center; padding: 16px; background: var(--painel); }
+  .tela .capa p { margin: 0; color: var(--suave); }
+  .tela .barra { position: absolute; left: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 8px; padding: 8px; background: linear-gradient(transparent, rgba(0, 0, 0, 0.8)); }
+  .tela .barra input[type=range] { max-width: 140px; }
+  .tela .barra .botao { padding: 5px 10px; font-size: 13px; }
 
-  #controles {
-    display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
-    padding: 12px; border-top: 1px solid var(--linha); background: var(--painel);
-  }
+  /* chat */
+  #chat { flex: 1; min-height: 0; display: flex; flex-direction: column; position: relative; }
+  #chat.arrastando::after { content: "Solte para enviar"; position: absolute; inset: 8px; display: grid; place-items: center; border: 2px dashed var(--acento); border-radius: var(--raio); background: rgba(15, 19, 24, 0.85); font-weight: 800; z-index: 5; }
+  #mensagens { flex: 1; overflow-y: auto; padding: 12px 16px; display: flex; flex-direction: column; gap: 2px; }
+  .vazio { margin: auto; color: var(--suave); text-align: center; }
+  .msg { position: relative; display: flex; gap: 12px; padding: 7px 8px; border-radius: 8px; }
+  .msg:hover { background: var(--painel); }
+  .msg .corpo { min-width: 0; flex: 1; }
+  .msg .cab { display: flex; align-items: baseline; gap: 8px; }
+  .msg .autor { font-weight: 700; }
+  .msg time, .msg .editado { color: var(--suave); font-size: 12px; }
+  .msg .texto { white-space: pre-wrap; overflow-wrap: anywhere; }
+  .msg .acoes { position: absolute; right: 8px; top: -14px; display: none; background: var(--elevado); border: 1px solid var(--linha); border-radius: 8px; padding: 2px; }
+  .msg:hover .acoes, .msg:focus-within .acoes { display: flex; }
+  .msg input.editando { margin-top: 4px; }
+  .msg .dica { color: var(--suave); font-size: 12px; margin-top: 2px; }
+  .anexo img, .anexo video { max-width: min(420px, 100%); max-height: 320px; border-radius: var(--raio); display: block; margin-top: 6px; background: #000; }
+  .anexo audio { margin-top: 6px; max-width: 100%; }
+  .anexo .arquivo { display: inline-flex; align-items: center; gap: 10px; margin-top: 6px; padding: 10px 14px; background: var(--elevado); border: 1px solid var(--linha); border-radius: var(--raio); color: var(--texto); text-decoration: none; max-width: 100%; }
+  .anexo .arquivo small { color: var(--suave); display: block; }
+  .anexo .arquivo span { min-width: 0; overflow-wrap: anywhere; }
 
-  #mensagens { flex: 1; overflow-y: auto; padding: 14px; display: grid; gap: 10px; align-content: start; }
-  .msg b { display: block; font-size: 13px; color: var(--acento); }
-  .msg span { overflow-wrap: anywhere; }
-  .msg.sistema { color: var(--suave); font-size: 13px; }
-  #formChat { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--linha); }
-  #formChat input { flex: 1; min-width: 0; }
+  #rodape { padding: 10px 16px 14px; }
+  #aviso { min-height: 18px; font-size: 13px; color: var(--suave); padding: 0 4px 4px; }
+  #formChat { display: flex; align-items: center; gap: 6px; background: var(--painel); border: 1px solid var(--linha); border-radius: var(--raio); padding: 4px 6px; }
+  #formChat input { flex: 1; min-width: 0; background: transparent; border: 0; padding: 9px 6px; color: var(--texto); }
+  #formChat input:focus-visible { outline: none; }
+  #formChat:focus-within { border-color: var(--acento); }
 
-  @media (max-width: 900px) {
-    #sala { grid-template-columns: 1fr; grid-template-rows: auto 1fr 220px; }
-    aside { border-right: 0; border-bottom: 1px solid var(--linha); flex-direction: row; flex-wrap: wrap; align-items: center; padding: 10px 14px; }
-    #chat { border-left: 0; border-top: 1px solid var(--linha); }
-    #palco { grid-template-columns: 1fr; }
+  /* janelas e menus */
+  dialog { background: var(--painel); color: var(--texto); border: 1px solid var(--linha); border-radius: 14px; padding: 22px; width: min(460px, calc(100% - 24px)); }
+  dialog::backdrop { background: rgba(0, 0, 0, 0.6); }
+  dialog h2 { margin: 0 0 14px; font-size: 18px; }
+  dialog form { display: grid; gap: 14px; }
+  .chk { display: flex; align-items: center; gap: 10px; color: var(--texto); font-size: 14px; }
+  .medidor { position: relative; height: 10px; background: var(--fundo); border-radius: 6px; overflow: hidden; border: 1px solid var(--linha); }
+  #medidor { height: 100%; width: 0; background: var(--verde); transition: width 60ms linear; }
+  #marcador { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--perigo); }
+  .dicaTxt { color: var(--suave); font-size: 12px; margin: 0; }
+  .acoesDlg { display: flex; justify-content: flex-end; gap: 8px; }
+  .radios { display: flex; gap: 16px; }
+  #menuUsuario { position: fixed; z-index: 20; width: 230px; background: var(--elevado); border: 1px solid var(--linha); border-radius: 12px; padding: 14px; display: grid; gap: 10px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5); }
+  #menuUsuario strong { overflow-wrap: anywhere; }
+  #fundoMenu { display: none; }
+
+  @media (max-width: 1100px) {
+    #app { grid-template-columns: 264px minmax(0, 1fr); }
+    #membrosCol { display: none; }
   }
+  @media (max-width: 760px) {
+    #app { grid-template-columns: 1fr; }
+    #lateral { position: fixed; z-index: 30; inset: 0 auto 0 0; width: min(300px, 86vw); transform: translateX(-100%); transition: transform 0.18s; }
+    body.menu #lateral { transform: none; }
+    body.menu #fundoMenu { display: block; position: fixed; inset: 0; z-index: 25; background: rgba(0, 0, 0, 0.55); }
+    #menuBtn { display: grid; }
+    #telas { grid-template-columns: 1fr; }
+    .msg .acoes { display: flex; top: 4px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 </head>
 <body>
 
+<!-- ícones -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-mic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></symbol>
+  <symbol id="i-mic-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"/><path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></symbol>
+  <symbol id="i-fone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></symbol>
+  <symbol id="i-fone-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/><line x1="1" y1="1" x2="23" y2="23"/></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></symbol>
+  <symbol id="i-camera-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.66 0H14a2 2 0 0 1 2 2v3.34l1 1L23 7v10"/><line x1="1" y1="1" x2="23" y2="23"/></symbol>
+  <symbol id="i-tela" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></symbol>
+  <symbol id="i-config" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></symbol>
+  <symbol id="i-clipe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></symbol>
+  <symbol id="i-sair" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
+  <symbol id="i-hash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></symbol>
+  <symbol id="i-volume" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></symbol>
+  <symbol id="i-mais" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+  <symbol id="i-editar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></symbol>
+  <symbol id="i-lixo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+  <symbol id="i-enviar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></symbol>
+  <symbol id="i-arquivo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></symbol>
+</defs></svg>
+
+<!-- entrada -->
 <section id="entrada">
   <form id="formEntrada">
     <div>
       <h1>Sala de voz</h1>
-      <p>Converse por voz e texto e transmita sua tela para quem estiver na sala.</p>
+      <p>Voz, chat, câmera e transmissão de tela com seus amigos.</p>
     </div>
     <label>Seu nome
       <input type="text" id="nome" maxlength="24" required autocomplete="nickname">
     </label>
-    <label>Nome da sala
-      <input type="text" id="nomeSala" maxlength="40" required>
+    <label>Nome do servidor
+      <input type="text" id="servidorEntrada" maxlength="40" required>
     </label>
-    <button class="botao primario" type="submit">Entrar na sala</button>
+    <button class="botao primario" type="submit">Entrar</button>
     <p id="erro" role="alert"></p>
   </form>
 </section>
 
-<section id="sala" class="oculto">
-  <aside>
-    <h2 id="tituloSala"></h2>
-    <button class="botao" id="copiar">Copiar link de convite</button>
-    <div>
-      <h3>Na sala</h3>
-      <ul id="membros"></ul>
+<!-- aplicativo -->
+<div id="app" class="oculto">
+  <nav id="lateral" aria-label="Canais">
+    <div id="cabServidor">
+      <h1 id="nomeServidor"></h1>
+      <button class="iconeBtn" id="btnConvite" title="Copiar link de convite" aria-label="Copiar link de convite"></button>
     </div>
-  </aside>
+    <div id="rolagemLateral">
+      <div class="grupoTitulo"><span>Canais de texto</span><button class="iconeBtn" data-novo="texto" title="Novo canal de texto" aria-label="Novo canal de texto"></button></div>
+      <ul id="listaTexto"></ul>
+      <div class="grupoTitulo"><span>Canais de voz</span><button class="iconeBtn" data-novo="voz" title="Novo canal de voz" aria-label="Novo canal de voz"></button></div>
+      <ul id="listaVoz"></ul>
+    </div>
+    <div id="painelVoz" class="oculto">
+      <div>
+        <div class="status">Voz conectada</div>
+        <div class="sub" id="vozNome"></div>
+      </div>
+      <div class="linha">
+        <button class="iconeBtn" id="btnCamera" title="Ligar câmera" aria-label="Ligar câmera"></button>
+        <button class="iconeBtn" id="btnTela" title="Compartilhar tela" aria-label="Compartilhar tela"></button>
+        <button class="iconeBtn" id="btnVerVoz" title="Ver transmissões" aria-label="Ver transmissões"></button>
+        <span style="flex:1"></span>
+        <button class="iconeBtn vermelho" id="btnSairVoz" title="Sair da voz" aria-label="Sair da voz"></button>
+      </div>
+    </div>
+    <div id="painelUsuario">
+      <span class="avatar grande" id="meuAvatar"></span>
+      <span class="nome" id="meuNome"></span>
+      <button class="iconeBtn" id="btnMic" title="Microfone" aria-label="Ligar ou desligar o microfone"></button>
+      <button class="iconeBtn" id="btnFone" title="Fone" aria-label="Silenciar o fone"></button>
+      <button class="iconeBtn" id="btnConfig" title="Configurações" aria-label="Configurações"></button>
+    </div>
+  </nav>
 
-  <main>
-    <div id="palco">
-      <p id="vazio">Ninguém está transmitindo. Clique em “Compartilhar tela” para começar.</p>
-    </div>
-    <div id="controles">
-      <button class="botao" id="btnMic">Silenciar microfone</button>
-      <button class="botao" id="btnTela">Compartilhar tela</button>
-      <button class="botao perigo" id="btnSair">Sair</button>
-    </div>
+  <main id="principal">
+    <header id="topo">
+      <button class="iconeBtn" id="menuBtn" aria-label="Abrir canais"></button>
+      <span id="topoIcone"></span>
+      <h2 id="topoTitulo"></h2>
+    </header>
+    <section id="palco" class="oculto" aria-label="Transmissões"><div id="telas"></div></section>
+    <section id="chat">
+      <div id="mensagens" aria-live="polite"></div>
+      <div id="rodape">
+        <div id="aviso"></div>
+        <form id="formChat">
+          <button class="iconeBtn" type="button" id="btnClipe" title="Enviar arquivo" aria-label="Enviar arquivo"></button>
+          <input type="file" id="arquivo" multiple class="oculto">
+          <input type="text" id="texto" placeholder="Escreva uma mensagem" maxlength="2000" autocomplete="off">
+          <button class="iconeBtn" type="submit" id="btnEnviar" title="Enviar" aria-label="Enviar"></button>
+        </form>
+      </div>
+    </section>
   </main>
 
-  <section id="chat">
-    <div id="mensagens" aria-live="polite"></div>
-    <form id="formChat">
-      <input type="text" id="textoChat" placeholder="Escreva uma mensagem" maxlength="500" autocomplete="off">
-      <button class="botao primario" type="submit">Enviar</button>
-    </form>
-  </section>
-</section>
+  <aside id="membrosCol" aria-label="Membros">
+    <div class="grupoTitulo"><span id="tituloMembros">Membros</span></div>
+    <ul id="listaMembros"></ul>
+  </aside>
+</div>
+<div id="fundoMenu"></div>
+
+<!-- menu de volume de um amigo -->
+<div id="menuUsuario" class="oculto" role="dialog" aria-label="Volume do usuário">
+  <strong id="muNome"></strong>
+  <label>Volume da voz
+    <input type="range" id="muVolume" min="0" max="100">
+  </label>
+  <label class="chk"><input type="checkbox" id="muMudo"> Silenciar só para mim</label>
+</div>
+
+<!-- configurações -->
+<dialog id="config">
+  <form method="dialog">
+    <h2>Áudio e vídeo</h2>
+    <label>Microfone
+      <select id="selMic"></select>
+    </label>
+    <label>Volume de entrada: <span id="vGanho"></span>
+      <input type="range" id="rgGanho" min="0" max="200">
+    </label>
+    <div>
+      <label>Sensibilidade do microfone</label>
+      <div class="medidor" style="margin:8px 0"><div id="medidor"></div><div id="marcador"></div></div>
+      <input type="range" id="rgLimiar" min="0" max="100" aria-label="Sensibilidade do microfone">
+      <p class="dicaTxt">Fale normalmente: a barra verde deve passar da linha vermelha. Tudo abaixo da linha é cortado (ruído de fundo, respiração). Em 0, o microfone fica sempre aberto.</p>
+    </div>
+    <label class="chk"><input type="checkbox" id="ckRuido"> Supressão de ruído</label>
+    <label class="chk"><input type="checkbox" id="ckEco"> Cancelamento de eco</label>
+    <label class="chk"><input type="checkbox" id="ckAgc"> Ajuste automático de volume</label>
+    <label>Câmera
+      <select id="selCam"></select>
+    </label>
+    <label>Volume geral de tudo que você ouve: <span id="vMestre"></span>
+      <input type="range" id="rgMestre" min="0" max="100">
+    </label>
+    <div class="acoesDlg"><button class="botao primario" value="fechar">Pronto</button></div>
+  </form>
+</dialog>
+
+<!-- novo canal -->
+<dialog id="dlgCanal">
+  <form method="dialog" id="formCanal">
+    <h2>Novo canal</h2>
+    <label>Nome do canal
+      <input type="text" id="nomeCanal" maxlength="24" required>
+    </label>
+    <div class="radios">
+      <label class="chk"><input type="radio" name="tipoCanal" value="texto" checked> Texto</label>
+      <label class="chk"><input type="radio" name="tipoCanal" value="voz"> Voz</label>
+    </div>
+    <div class="acoesDlg">
+      <button class="botao" value="cancelar" formnovalidate>Cancelar</button>
+      <button class="botao primario" value="criar">Criar</button>
+    </div>
+  </form>
+</dialog>
 
 <div id="audios"></div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
+"use strict";
+
+// ====================================================================
+// utilidades
+// ====================================================================
+const NS = "http://www.w3.org/2000/svg";
 const $ = (id) => document.getElementById(id);
+const el = (tag, cls, txt) => {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (txt != null) e.textContent = txt;
+  return e;
+};
+const icone = (nome, cls) => {
+  const s = document.createElementNS(NS, "svg");
+  s.setAttribute("class", "ic" + (cls ? " " + cls : ""));
+  s.setAttribute("aria-hidden", "true");
+  const u = document.createElementNS(NS, "use");
+  u.setAttribute("href", "#i-" + nome);
+  s.append(u);
+  return s;
+};
+const lerJSON = (chave, padrao) => {
+  try { return Object.assign(padrao, JSON.parse(localStorage.getItem(chave) || "{}")); }
+  catch { return padrao; }
+};
+const setIcone = (btn, nome, cls) => btn.replaceChildren(icone(nome, cls));
+const corDe = (uid) => {
+  let h = 0;
+  for (const c of String(uid)) h = (h * 31 + c.charCodeAt(0)) % 360;
+  return `hsl(${h} 60% 62%)`;
+};
+function avatar(uid, nome, grande) {
+  const a = el("span", "avatar" + (grande ? " grande" : ""), (nome || "?").trim().charAt(0).toUpperCase());
+  a.style.background = corDe(uid);
+  return a;
+}
+const fmtTam = (b) => b > 1048576 ? (b / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(b / 1024)) + " KB";
+function fmtHora(ts) {
+  const d = new Date(ts), hoje = new Date();
+  const h = d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  return d.toDateString() === hoje.toDateString() ? h : d.toLocaleDateString("pt-BR") + " " + h;
+}
+
+// ====================================================================
+// configurações salvas no navegador
+// ====================================================================
+const CFG = lerJSON("cfg", { limiar: 12, ganho: 100, ruido: true, eco: true, agc: true, micId: "", camId: "", mestre: 100 });
+const VOLS = lerJSON("vols", {}); // uid -> { vol, mudo }
+const salvarCfg = () => localStorage.setItem("cfg", JSON.stringify(CFG));
+const salvarVols = () => localStorage.setItem("vols", JSON.stringify(VOLS));
+const volDe = (uid) => (VOLS[uid] ||= { vol: 100, mudo: false });
+
 const ICE = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
 
-let socket, meuNome, sala;
-let micStream = null;      // microfone
-let telaStream = null;     // transmissão de tela
-const pares = {};          // id -> { pc, nome, educado, fazendoOferta, ignorar, enviosTela }
+// ====================================================================
+// estado
+// ====================================================================
+const E = {
+  socket: null, eu: null, uid: null, nome: "", servidor: "",
+  canais: [], membros: [], canalAtivo: null, vozCanal: null,
+  mensagens: {}, naoLidas: new Set(),
+  micLigado: true, fone: false, semMic: false,
+  pares: {}, tiles: {}, locais: {}, falandoSet: new Set(),
+  menuUid: null, jaEntrou: false,
+};
+const A = { ctx: null, raw: null, fonte: null, ganho: null, analisador: null, porta: null, destino: null, buf: null, ultima: 0, ultimaFala: 0, nivel: 0 };
 
-// ---------- entrada ----------
+const nomeDe = (id) => (E.membros.find((m) => m.id === id) || {}).nome || "Alguém";
+const uidDe = (id) => (E.membros.find((m) => m.id === id) || {}).uid;
+const micEfetivo = () => E.micLigado && !E.fone && !!A.destino;
+
+// ====================================================================
+// entrada
+// ====================================================================
 const params = new URLSearchParams(location.search);
-$("nomeSala").value = params.get("sala") || "";
+$("servidorEntrada").value = params.get("servidor") || "";
 $("nome").value = localStorage.getItem("nome") || "";
+let segredo = localStorage.getItem("segredo");
+if (!segredo) {
+  segredo = Array.from(crypto.getRandomValues(new Uint8Array(24)), (b) => b.toString(16).padStart(2, "0")).join("");
+  localStorage.setItem("segredo", segredo);
+}
 
-$("formEntrada").addEventListener("submit", async (e) => {
+$("formEntrada").addEventListener("submit", (e) => {
   e.preventDefault();
-  meuNome = $("nome").value.trim();
-  sala = $("nomeSala").value.trim();
-  localStorage.setItem("nome", meuNome);
-  $("erro").textContent = "";
-
-  try {
-    micStream = await navigator.mediaDevices.getUserMedia({
-      audio: { echoCancellation: true, noiseSuppression: true },
-    });
-  } catch (err) {
-    // segue sem microfone: a pessoa ainda pode ouvir, ver telas e usar o chat
-    micStream = null;
-    mensagemSistema("Microfone indisponível. Você pode ouvir e conversar por texto.");
-  }
-
+  E.nome = $("nome").value.trim();
+  E.servidor = $("servidorEntrada").value.trim();
+  localStorage.setItem("nome", E.nome);
   conectar();
 });
 
+// ====================================================================
+// conexão com o servidor
+// ====================================================================
 function conectar() {
-  socket = io();
+  const s = (E.socket = io());
 
-  socket.on("connect", () => socket.emit("entrar", { sala, nome: meuNome }));
+  s.on("connect", () => s.emit("entrar", { servidor: E.servidor, nome: E.nome, segredo }));
 
-  socket.on("sala-cheia", () => {
-    $("erro").textContent = "Esta sala está cheia.";
-    socket.disconnect();
+  s.on("pronto", ({ eu, uid, canais, membros }) => {
+    E.eu = eu; E.uid = uid; E.canais = canais; E.membros = membros;
+    if (!E.jaEntrou) {
+      E.jaEntrou = true;
+      $("entrada").classList.add("oculto");
+      $("app").classList.remove("oculto");
+      $("nomeServidor").textContent = E.servidor;
+      history.replaceState(null, "", "?servidor=" + encodeURIComponent(E.servidor));
+      const av = avatar(uid, E.nome, true);
+      $("meuAvatar").replaceWith(av);
+      av.id = "meuAvatar";
+      av.dataset.membro = eu;
+      $("meuNome").textContent = E.nome;
+      abrirCanal((canais.find((c) => c.tipo === "texto") || canais[0]).id);
+    } else {
+      $("meuAvatar").dataset.membro = eu;
+      if (E.canalAtivo) pedirHistorico(E.canalAtivo);
+    }
+    renderTudo();
   });
 
-  socket.on("participantes", (lista) => {
-    $("entrada").classList.add("oculto");
-    $("sala").classList.remove("oculto");
-    $("tituloSala").textContent = sala;
-    history.replaceState(null, "", "?sala=" + encodeURIComponent(sala));
-    adicionarMembro("eu", meuNome + " (você)");
-    lista.forEach((p) => criarPar(p.id, p.nome));
+  s.on("canais", (canais) => { E.canais = canais; renderCanais(); });
+  s.on("membros", (membros) => { E.membros = membros; renderCanais(); renderMembros(); });
+
+  s.on("historico", ({ canal, mensagens }) => {
+    E.mensagens[canal] = mensagens;
+    if (canal === E.canalAtivo) renderMsgs();
+  });
+  s.on("msg", ({ canal, msg }) => {
+    if (E.mensagens[canal]) E.mensagens[canal].push(msg);
+    if (canal === E.canalAtivo) anexarMsg(msg);
+    else if (msg.uid !== E.uid) { E.naoLidas.add(canal); renderCanais(); }
+  });
+  s.on("msg-editada", ({ canal, msg }) => {
+    const lista = E.mensagens[canal];
+    if (lista) { const i = lista.findIndex((m) => m.id === msg.id); if (i >= 0) lista[i] = msg; }
+    if (canal === E.canalAtivo) {
+      const antigo = document.querySelector(`.msg[data-id="${msg.id}"]`);
+      if (antigo) antigo.replaceWith(elMsg(msg));
+    }
+  });
+  s.on("msg-apagada", ({ canal, id }) => {
+    const lista = E.mensagens[canal];
+    if (lista) { const i = lista.findIndex((m) => m.id === id); if (i >= 0) lista.splice(i, 1); }
+    if (canal === E.canalAtivo) {
+      const antigo = document.querySelector(`.msg[data-id="${id}"]`);
+      if (antigo) antigo.remove();
+      if (!$("mensagens").children.length) renderMsgs();
+    }
   });
 
-  socket.on("entrou", (p) => {
-    criarPar(p.id, p.nome);
-    mensagemSistema(p.nome + " entrou na sala.");
-  });
+  // voz
+  s.on("voz-participantes", (ids) => ids.forEach(criarPar));
+  s.on("voz-entrou", ({ id }) => criarPar(id));
+  s.on("voz-saiu", ({ id }) => removerPar(id));
+  s.on("voz-cheia", () => { aviso("Este canal de voz está cheio."); sairVoz(); });
+  s.on("sinal", ({ de, dados }) => tratarSinal(de, dados));
 
-  socket.on("saiu", ({ id }) => {
-    if (pares[id]) mensagemSistema(pares[id].nome + " saiu da sala.");
-    removerPar(id);
-  });
-
-  socket.on("sinal", ({ de, dados }) => tratarSinal(de, dados));
-
-  socket.on("chat", ({ nome, texto }) => {
-    const div = document.createElement("div");
-    div.className = "msg";
-    const b = document.createElement("b");
-    b.textContent = nome;
-    const s = document.createElement("span");
-    s.textContent = texto;
-    div.append(b, s);
-    $("mensagens").append(div);
-    $("mensagens").scrollTop = 1e9;
+  s.on("disconnect", () => {
+    if (E.vozCanal) { sairVoz(true); aviso("Conexão perdida. Entre no canal de voz novamente."); }
   });
 }
 
-// ---------- WebRTC (negociação perfeita) ----------
-function criarPar(id, nome) {
-  if (pares[id]) return;
+// ====================================================================
+// render: canais, membros, controles
+// ====================================================================
+function renderTudo() { renderCanais(); renderMembros(); renderControles(); renderVozPainel(); }
+
+function icones(m) {
+  const box = el("span", "estados");
+  if (!m.voz) return box;
+  const e = m.estado || {};
+  if (e.fone) { const i = icone("fone-off", "vermelho"); i.append(Object.assign(document.createElementNS(NS, "title"), { textContent: "Fone silenciado" })); box.append(i); }
+  else if (!e.mic) { const i = icone("mic-off", "vermelho"); i.append(Object.assign(document.createElementNS(NS, "title"), { textContent: "Microfone desligado" })); box.append(i); }
+  if (e.camera) box.append(icone("camera"));
+  if (e.tela) box.append(el("span", "ao-vivo", "AO VIVO"));
+  return box;
+}
+
+function itemMembro(m, mostrarOnde) {
+  const li = el("li");
+  const b = el("button", "pessoa");
+  const av = avatar(m.uid, m.nome);
+  av.dataset.membro = m.id;
+  if (E.falandoSet.has(m.id)) av.classList.add("falando");
+  b.append(av, el("span", "nome", m.nome + (m.id === E.eu ? " (você)" : "")));
+  if (mostrarOnde && m.voz) {
+    const c = E.canais.find((x) => x.id === m.voz);
+    if (c) b.append(el("span", "onde", c.nome));
+  }
+  b.append(icones(m));
+  b.onclick = (ev) => abrirMenuUsuario(m, ev);
+  li.append(b);
+  return li;
+}
+
+function renderCanais() {
+  const lt = $("listaTexto"), lv = $("listaVoz");
+  lt.replaceChildren(); lv.replaceChildren();
+  for (const c of E.canais) {
+    const li = el("li");
+    const b = el("button", "canal" + (c.id === E.canalAtivo ? " ativo" : "") + (E.naoLidas.has(c.id) ? " nova" : ""));
+    b.append(icone(c.tipo === "voz" ? "volume" : "hash"), el("span", "", c.nome));
+    b.onclick = () => abrirCanal(c.id);
+    li.append(b);
+    if (c.tipo === "voz") {
+      const ul = el("ul", "presentes");
+      E.membros.filter((m) => m.voz === c.id).forEach((m) => ul.append(itemMembro(m, false)));
+      li.append(ul);
+      lv.append(li);
+    } else lt.append(li);
+  }
+}
+
+function renderMembros() {
+  $("tituloMembros").textContent = "Membros — " + E.membros.length;
+  const ul = $("listaMembros");
+  ul.replaceChildren();
+  E.membros.forEach((m) => ul.append(itemMembro(m, true)));
+}
+
+function renderControles() {
+  const micOff = !E.micLigado || E.fone || E.semMic;
+  setIcone($("btnMic"), micOff ? "mic-off" : "mic", micOff ? "vermelho" : "");
+  $("btnMic").title = E.semMic ? "Microfone indisponível" : micOff ? "Ligar microfone" : "Desligar microfone";
+  setIcone($("btnFone"), E.fone ? "fone-off" : "fone", E.fone ? "vermelho" : "");
+  $("btnFone").title = E.fone ? "Ativar fone" : "Silenciar fone";
+  setIcone($("btnConfig"), "config");
+  setIcone($("btnConvite"), "link");
+  document.querySelectorAll("[data-novo]").forEach((b) => setIcone(b, "mais"));
+  setIcone($("btnClipe"), "clipe");
+  setIcone($("btnEnviar"), "enviar");
+  setIcone($("menuBtn"), "menu");
+  const cam = !!E.locais.camera, tela = !!E.locais.tela;
+  setIcone($("btnCamera"), cam ? "camera" : "camera-off");
+  $("btnCamera").classList.toggle("ligado", cam);
+  $("btnCamera").title = cam ? "Desligar câmera" : "Ligar câmera";
+  setIcone($("btnTela"), "tela");
+  $("btnTela").classList.toggle("ligado", tela);
+  $("btnTela").title = tela ? "Parar transmissão" : "Compartilhar tela";
+  setIcone($("btnVerVoz"), "volume");
+  setIcone($("btnSairVoz"), "sair");
+}
+
+function renderVozPainel() {
+  $("painelVoz").classList.toggle("oculto", !E.vozCanal);
+  const c = E.canais.find((x) => x.id === E.vozCanal);
+  $("vozNome").textContent = c ? c.nome : "";
+  atualizarPalco();
+}
+
+function aviso(t) { $("aviso").textContent = t; }
+
+// ====================================================================
+// canais e mensagens
+// ====================================================================
+function abrirCanal(id) {
+  const c = E.canais.find((x) => x.id === id);
+  if (!c) return;
+  E.canalAtivo = id;
+  E.naoLidas.delete(id);
+  $("topoIcone").replaceChildren(icone(c.tipo === "voz" ? "volume" : "hash"));
+  $("topoTitulo").textContent = c.nome;
+  $("texto").placeholder = "Mensagem em " + (c.tipo === "voz" ? "" : "#") + c.nome;
+  document.body.classList.remove("menu");
+  if (c.tipo === "voz") entrarVoz(id);
+  if (E.mensagens[id]) renderMsgs(); else { $("mensagens").replaceChildren(el("p", "vazio", "Carregando…")); pedirHistorico(id); }
+  renderCanais();
+  atualizarPalco();
+}
+const pedirHistorico = (id) => E.socket.emit("historico", { canal: id });
+
+function renderMsgs() {
+  const box = $("mensagens");
+  box.replaceChildren();
+  const lista = E.mensagens[E.canalAtivo] || [];
+  if (!lista.length) { box.append(el("p", "vazio", "Nenhuma mensagem ainda. Diga olá!")); return; }
+  lista.forEach((m) => box.append(elMsg(m)));
+  box.scrollTop = box.scrollHeight;
+}
+
+function anexarMsg(msg) {
+  const box = $("mensagens");
+  const vazio = box.querySelector(".vazio");
+  if (vazio) vazio.remove();
+  const perto = box.scrollHeight - box.scrollTop - box.clientHeight < 140;
+  box.append(elMsg(msg));
+  if (perto || msg.uid === E.uid) box.scrollTop = box.scrollHeight;
+}
+
+function elAnexo(a) {
+  const box = el("div", "anexo");
+  if (a.tipo === "imagem") {
+    const img = el("img"); img.src = a.url; img.alt = a.nome; img.loading = "lazy";
+    const link = el("a"); link.href = a.url; link.target = "_blank"; link.rel = "noopener"; link.append(img);
+    box.append(link);
+  } else if (a.tipo === "video") {
+    const v = el("video"); v.src = a.url; v.controls = true; v.preload = "metadata"; v.playsInline = true;
+    box.append(v);
+  } else if (a.tipo === "audio") {
+    const au = el("audio"); au.src = a.url; au.controls = true; au.preload = "metadata";
+    box.append(au);
+  } else {
+    const l = el("a", "arquivo"); l.href = a.url; l.download = a.nome;
+    const t = el("span"); t.append(document.createTextNode(a.nome), el("small", "", fmtTam(a.tamanho)));
+    l.append(icone("arquivo"), t);
+    box.append(l);
+  }
+  return box;
+}
+
+function elMsg(m) {
+  const li = el("div", "msg");
+  li.dataset.id = m.id;
+  const corpo = el("div", "corpo");
+  const cab = el("div", "cab");
+  cab.append(el("span", "autor", m.nome), el("time", "", fmtHora(m.hora)));
+  if (m.editado) cab.append(el("span", "editado", "(editado)"));
+  corpo.append(cab);
+  if (m.texto) corpo.append(el("div", "texto", m.texto));
+  if (m.anexo) corpo.append(elAnexo(m.anexo));
+  li.append(avatar(m.uid, m.nome, true), corpo);
+  if (m.uid === E.uid) {
+    const ac = el("div", "acoes");
+    if (m.texto) {
+      const be = el("button", "iconeBtn"); be.title = "Editar"; be.setAttribute("aria-label", "Editar mensagem");
+      be.append(icone("editar")); be.onclick = () => editarMsg(li, m);
+      ac.append(be);
+    }
+    const bx = el("button", "iconeBtn"); bx.title = "Apagar"; bx.setAttribute("aria-label", "Apagar mensagem");
+    bx.append(icone("lixo"));
+    bx.onclick = () => { if (confirm("Apagar esta mensagem?")) E.socket.emit("apagar", { canal: E.canalAtivo, id: m.id }); };
+    ac.append(bx);
+    li.append(ac);
+  }
+  return li;
+}
+
+function editarMsg(li, m) {
+  const txt = li.querySelector(".texto");
+  if (!txt || li.querySelector(".editando")) return;
+  const inp = el("input", "editando");
+  inp.type = "text"; inp.value = m.texto; inp.maxLength = 2000;
+  const dica = el("div", "dica", "Enter para salvar · Esc para cancelar");
+  txt.replaceWith(inp);
+  inp.after(dica);
+  inp.focus();
+  const canal = E.canalAtivo;
+  inp.addEventListener("keydown", (ev) => {
+    if (ev.key === "Escape") li.replaceWith(elMsg(m));
+    if (ev.key === "Enter") {
+      const novo = inp.value.trim();
+      if (!novo) return;
+      if (novo === m.texto) li.replaceWith(elMsg(m));
+      else E.socket.emit("editar", { canal, id: m.id, texto: novo });
+    }
+  });
+}
+
+$("formChat").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const t = $("texto").value.trim();
+  if (!t || !E.canalAtivo) return;
+  E.socket.emit("msg", { canal: E.canalAtivo, texto: t });
+  $("texto").value = "";
+});
+
+// ----- arquivos: botão, arrastar e colar -----
+$("btnClipe").onclick = () => $("arquivo").click();
+$("arquivo").onchange = () => { enviarArquivos([...$("arquivo").files]); $("arquivo").value = ""; };
+const chat = $("chat");
+chat.addEventListener("dragover", (e) => { e.preventDefault(); chat.classList.add("arrastando"); });
+chat.addEventListener("dragleave", (e) => { if (e.target === chat || !chat.contains(e.relatedTarget)) chat.classList.remove("arrastando"); });
+chat.addEventListener("drop", (e) => {
+  e.preventDefault(); chat.classList.remove("arrastando");
+  enviarArquivos([...e.dataTransfer.files]);
+});
+$("texto").addEventListener("paste", (e) => {
+  const fs = [...(e.clipboardData ? e.clipboardData.files : [])];
+  if (fs.length) { e.preventDefault(); enviarArquivos(fs); }
+});
+
+async function enviarArquivos(files) {
+  const canal = E.canalAtivo;
+  for (const f of files) {
+    if (f.size > 25 * 1024 * 1024) { aviso(`“${f.name}” passa do limite de 25 MB.`); continue; }
+    aviso(`Enviando ${f.name}…`);
+    try {
+      const r = await fetch("/upload", {
+        method: "POST",
+        headers: { "X-Nome": encodeURIComponent(f.name), "Content-Type": f.type || "application/octet-stream" },
+        body: f,
+      });
+      if (!r.ok) throw new Error();
+      const anexo = await r.json();
+      const texto = $("texto").value.trim();
+      $("texto").value = "";
+      E.socket.emit("msg", { canal, texto, anexo });
+      aviso("");
+    } catch {
+      aviso(`Não foi possível enviar “${f.name}”.`);
+    }
+  }
+}
+
+// ----- novo canal e convite -----
+document.querySelectorAll("[data-novo]").forEach((b) => b.addEventListener("click", () => {
+  document.querySelector(`input[name=tipoCanal][value=${b.dataset.novo}]`).checked = true;
+  $("nomeCanal").value = "";
+  $("dlgCanal").showModal();
+  $("nomeCanal").focus();
+}));
+$("formCanal").addEventListener("submit", (e) => {
+  if (e.submitter && e.submitter.value === "criar") {
+    const nome = $("nomeCanal").value.trim();
+    const tipo = document.querySelector("input[name=tipoCanal]:checked").value;
+    if (nome) E.socket.emit("criar-canal", { nome, tipo });
+  }
+});
+$("btnConvite").onclick = async () => {
+  const link = location.origin + location.pathname + "?servidor=" + encodeURIComponent(E.servidor);
+  try { await navigator.clipboard.writeText(link); aviso("Link de convite copiado."); }
+  catch { prompt("Copie o link de convite:", link); }
+  setTimeout(() => aviso(""), 2500);
+};
+$("menuBtn").onclick = () => document.body.classList.add("menu");
+$("fundoMenu").onclick = () => document.body.classList.remove("menu");
+
+// ====================================================================
+// áudio local: microfone → ganho → porta de ruído → envio
+// ====================================================================
+async function garantirAudio() {
+  if (A.ctx) return !!A.destino;
+  A.ctx = new (window.AudioContext || window.webkitAudioContext)();
+  A.ctx.resume().catch(() => {});
+  A.destino = A.ctx.createMediaStreamDestination();
+  A.ganho = A.ctx.createGain();
+  A.ganho.gain.value = CFG.ganho / 100;
+  A.analisador = A.ctx.createAnalyser();
+  A.analisador.fftSize = 1024;
+  A.buf = new Float32Array(A.analisador.fftSize);
+  A.porta = A.ctx.createGain();
+  A.porta.gain.value = 0;
+  A.ganho.connect(A.analisador);
+  A.ganho.connect(A.porta);
+  A.porta.connect(A.destino);
+  const ok = await trocarMicrofone();
+  if (!ok) { A.destino = null; E.semMic = true; renderControles(); }
+  return ok;
+}
+
+async function trocarMicrofone() {
+  try {
+    if (A.raw) A.raw.getTracks().forEach((t) => t.stop());
+    if (A.fonte) A.fonte.disconnect();
+    A.raw = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        deviceId: CFG.micId ? { exact: CFG.micId } : undefined,
+        noiseSuppression: CFG.ruido, echoCancellation: CFG.eco, autoGainControl: CFG.agc,
+      },
+    });
+    A.fonte = A.ctx.createMediaStreamSource(A.raw);
+    A.fonte.connect(A.ganho);
+    E.semMic = false;
+    renderControles();
+    return true;
+  } catch (err) {
+    if (CFG.micId) { CFG.micId = ""; salvarCfg(); return trocarMicrofone(); } // microfone salvo sumiu
+    return false;
+  }
+}
+
+function pararAudio() {
+  if (A.raw) A.raw.getTracks().forEach((t) => t.stop());
+  if (A.ctx) A.ctx.close().catch(() => {});
+  Object.assign(A, { ctx: null, raw: null, fonte: null, ganho: null, analisador: null, porta: null, destino: null, buf: null });
+  falando(E.eu, false);
+}
+
+// laço de monitoramento: porta de ruído, indicador de fala e medidor
+setInterval(() => {
+  const agora = performance.now();
+  let nivel = 0;
+  if (A.analisador && A.ctx) {
+    A.analisador.getFloatTimeDomainData(A.buf);
+    let soma = 0;
+    for (let i = 0; i < A.buf.length; i++) soma += A.buf[i] * A.buf[i];
+    const rms = Math.sqrt(soma / A.buf.length);
+    nivel = Math.min(100, Math.sqrt(rms / 0.3) * 100);
+    if (CFG.limiar === 0 || nivel > CFG.limiar) A.ultima = agora;
+    if (nivel > Math.max(CFG.limiar, 5)) A.ultimaFala = agora;
+    const aberto = agora - A.ultima < 350;
+    A.porta.gain.setTargetAtTime(micEfetivo() && aberto ? 1 : 0, A.ctx.currentTime, 0.02);
+    falando(E.eu, micEfetivo() && agora - A.ultimaFala < 300);
+  }
+  if ($("config").open) $("medidor").style.width = nivel + "%";
+
+  for (const par of Object.values(E.pares)) {
+    if (!par.analisador) continue;
+    par.analisador.getFloatTimeDomainData(par.buf);
+    let s = 0;
+    for (let i = 0; i < par.buf.length; i++) s += par.buf[i] * par.buf[i];
+    if (Math.sqrt(s / par.buf.length) > 0.012) par.ultimaFala = agora;
+    falando(par.id, agora - (par.ultimaFala || 0) < 250);
+  }
+}, 50);
+
+function falando(id, sim) {
+  if (!id || sim === E.falandoSet.has(id)) return;
+  sim ? E.falandoSet.add(id) : E.falandoSet.delete(id);
+  document.querySelectorAll(`.avatar[data-membro="${id}"]`).forEach((a) => a.classList.toggle("falando", sim));
+}
+
+// ====================================================================
+// botões: microfone, fone, voz, câmera, tela
+// ====================================================================
+function emitirEstado() {
+  if (!E.socket) return;
+  E.socket.emit("estado", { mic: micEfetivo(), fone: E.fone, camera: !!E.locais.camera, tela: !!E.locais.tela });
+}
+
+$("btnMic").onclick = () => {
+  if (E.semMic) { aviso("Microfone indisponível. Libere a permissão no navegador e entre na voz de novo."); return; }
+  if (E.fone) { E.fone = false; E.micLigado = true; } else E.micLigado = !E.micLigado;
+  aplicarVolumes(); renderControles(); emitirEstado();
+};
+$("btnFone").onclick = () => {
+  E.fone = !E.fone;
+  aplicarVolumes(); renderControles(); emitirEstado();
+};
+
+async function entrarVoz(canalId) {
+  if (E.vozCanal === canalId) return;
+  if (E.vozCanal) sairVoz();
+  E.vozCanal = canalId;
+  renderVozPainel();
+  await garantirAudio();
+  if (E.vozCanal !== canalId) return;
+  E.socket.emit("voz-entrar", { canal: canalId });
+  emitirEstado();
+}
+
+function sairVoz(semAvisar) {
+  if (!E.vozCanal) return;
+  pararMidia("camera");
+  pararMidia("tela");
+  Object.keys(E.pares).forEach(removerPar);
+  if (!semAvisar) E.socket.emit("voz-sair");
+  E.vozCanal = null;
+  if (!$("config").open) pararAudio();
+  renderVozPainel(); renderControles();
+}
+$("btnSairVoz").onclick = () => sairVoz();
+$("btnVerVoz").onclick = () => E.vozCanal && abrirCanal(E.vozCanal);
+
+$("btnCamera").onclick = async () => {
+  if (E.locais.camera) return pararMidia("camera");
+  try {
+    const s = await navigator.mediaDevices.getUserMedia({
+      video: { deviceId: CFG.camId ? { exact: CFG.camId } : undefined, width: { ideal: 1280 }, height: { ideal: 720 } },
+    });
+    iniciarMidia("camera", s);
+  } catch { aviso("Não foi possível acessar a câmera."); }
+};
+$("btnTela").onclick = async () => {
+  if (E.locais.tela) return pararMidia("tela");
+  try {
+    const s = await navigator.mediaDevices.getDisplayMedia({ video: { frameRate: 30 }, audio: true });
+    iniciarMidia("tela", s);
+  } catch { /* cancelado */ }
+};
+
+// ====================================================================
+// mídias que enviamos (câmera e tela)
+// ====================================================================
+function iniciarMidia(tipo, stream) {
+  E.locais[tipo] = stream;
+  Object.values(E.pares).forEach((par) => enviarMidia(par, tipo));
+  criarTile({ chave: stream.id, dono: E.eu, titulo: tipo === "camera" ? "Sua câmera" : "Sua tela", stream, local: true, tipo });
+  stream.getVideoTracks()[0].onended = () => pararMidia(tipo);
+  renderControles(); emitirEstado();
+}
+
+function enviarMidia(par, tipo) {
+  const s = E.locais[tipo];
+  sinal(par.id, { midias: { [s.id]: tipo } }); // avisa o tipo antes de mandar as faixas
+  par.envios[tipo] = s.getTracks().map((t) => par.pc.addTrack(t, s));
+}
+
+function pararMidia(tipo) {
+  const s = E.locais[tipo];
+  if (!s) return;
+  s.getTracks().forEach((t) => { t.onended = null; t.stop(); });
+  Object.values(E.pares).forEach((par) => {
+    (par.envios[tipo] || []).forEach((snd) => { try { par.pc.removeTrack(snd); } catch {} });
+    delete par.envios[tipo];
+  });
+  removerTile(s.id);
+  delete E.locais[tipo];
+  renderControles();
+  if (E.socket) emitirEstado();
+}
+
+// ====================================================================
+// WebRTC (negociação perfeita, uma conexão por amigo)
+// ====================================================================
+const sinal = (para, dados) => E.socket.emit("sinal", { para, dados });
+
+function criarPar(id) {
+  if (E.pares[id] || !E.vozCanal) return;
   const pc = new RTCPeerConnection(ICE);
-  const par = {
-    pc, nome,
-    educado: socket.id < id,
-    fazendoOferta: false,
-    ignorar: false,
-    enviosTela: [],
-  };
-  pares[id] = par;
-  adicionarMembro(id, nome);
+  const par = { id, pc, educado: E.eu < id, fazendoOferta: false, ignorar: false, midias: {}, envios: {}, vistos: new Set(), analisador: null, buf: null, audioEl: null, ultimaFala: 0 };
+  E.pares[id] = par;
 
-  pc.onicecandidate = ({ candidate }) => {
-    if (candidate) socket.emit("sinal", { para: id, dados: { candidato: candidate } });
-  };
-
+  pc.onicecandidate = ({ candidate }) => { if (candidate) sinal(id, { candidato: candidate }); };
   pc.onnegotiationneeded = async () => {
     try {
       par.fazendoOferta = true;
       await pc.setLocalDescription();
-      socket.emit("sinal", { para: id, dados: { descricao: pc.localDescription } });
-    } catch (err) {
-      console.error(err);
-    } finally {
-      par.fazendoOferta = false;
-    }
+      sinal(id, { descricao: pc.localDescription });
+    } catch (err) { console.error(err); }
+    finally { par.fazendoOferta = false; }
   };
-
+  pc.onconnectionstatechange = () => { if (pc.connectionState === "failed") pc.restartIce(); };
   pc.ontrack = ({ streams }) => {
-    const stream = streams[0];
-    if (!stream || stream.__tratado) return;
-    stream.__tratado = true;
-    receberStream(id, nome, stream);
+    const s = streams[0];
+    if (!s || par.vistos.has(s.id)) return;
+    par.vistos.add(s.id);
+    receberStream(par, s);
   };
 
-  // envia o que já estamos mandando
-  if (micStream) micStream.getTracks().forEach((t) => pc.addTrack(t, micStream));
-  else pc.addTransceiver("audio", { direction: "recvonly" });
-  if (telaStream) enviarTela(par);
+  if (A.destino) {
+    sinal(id, { midias: { [A.destino.stream.id]: "mic" } });
+    A.destino.stream.getTracks().forEach((t) => pc.addTrack(t, A.destino.stream));
+  } else {
+    pc.addTransceiver("audio", { direction: "recvonly" });
+  }
+  Object.keys(E.locais).forEach((tipo) => enviarMidia(par, tipo));
 }
 
-async function tratarSinal(de, { descricao, candidato }) {
-  const par = pares[de];
-  if (!par) return;
-  const { pc } = par;
+async function tratarSinal(de, dados) {
+  const par = E.pares[de];
+  if (!par || !dados) return;
+  const pc = par.pc;
+
+  if (dados.midias) {
+    Object.assign(par.midias, dados.midias);
+    for (const [sid, tipo] of Object.entries(dados.midias)) {
+      const t = E.tiles[sid];
+      if (t && t.definirTipo) t.definirTipo(tipo);
+    }
+    return;
+  }
   try {
-    if (descricao) {
-      const colisao = descricao.type === "offer" &&
-        (par.fazendoOferta || pc.signalingState !== "stable");
+    if (dados.descricao) {
+      const colisao = dados.descricao.type === "offer" && (par.fazendoOferta || pc.signalingState !== "stable");
       par.ignorar = !par.educado && colisao;
       if (par.ignorar) return;
-      await pc.setRemoteDescription(descricao);
-      if (descricao.type === "offer") {
+      await pc.setRemoteDescription(dados.descricao);
+      if (dados.descricao.type === "offer") {
         await pc.setLocalDescription();
-        socket.emit("sinal", { para: de, dados: { descricao: pc.localDescription } });
+        sinal(de, { descricao: pc.localDescription });
       }
-    } else if (candidato) {
-      try { await pc.addIceCandidate(candidato); }
+    } else if (dados.candidato) {
+      try { await pc.addIceCandidate(dados.candidato); }
       catch (err) { if (!par.ignorar) throw err; }
     }
-  } catch (err) {
-    console.error(err);
-  }
+  } catch (err) { console.error(err); }
 }
 
 function removerPar(id) {
-  const par = pares[id];
+  const par = E.pares[id];
   if (!par) return;
   par.pc.close();
-  delete pares[id];
-  document.querySelectorAll(`[data-dono="${id}"]`).forEach((el) => el.remove());
-  const li = document.querySelector(`[data-membro="${id}"]`);
-  if (li) li.remove();
-  atualizarVazio();
+  if (par.audioEl) par.audioEl.remove();
+  Object.values(E.tiles).filter((t) => t.dono === id).forEach((t) => removerTile(t.chave));
+  delete E.pares[id];
+  falando(id, false);
 }
 
-// ---------- recebimento de mídia ----------
-function receberStream(id, nome, stream) {
-  const temVideo = stream.getVideoTracks().length > 0;
-  // um stream só de áudio (microfone) vira um <audio> invisível
-  if (!temVideo) {
-    const a = document.createElement("audio");
+// ====================================================================
+// mídias recebidas
+// ====================================================================
+function receberStream(par, stream) {
+  const tipo = par.midias[stream.id] || (stream.getVideoTracks().length ? "tela" : "mic");
+  if (tipo === "mic") {
+    const a = el("audio");
     a.autoplay = true;
     a.srcObject = stream;
-    a.dataset.dono = id;
     $("audios").append(a);
-    stream.onremovetrack = () => a.remove();
+    par.audioEl = a;
+    if (A.ctx) {
+      const src = A.ctx.createMediaStreamSource(stream);
+      par.analisador = A.ctx.createAnalyser();
+      par.analisador.fftSize = 512;
+      par.buf = new Float32Array(par.analisador.fftSize);
+      src.connect(par.analisador); // só para medir; o som sai pelo <audio>
+    }
+    aplicarVolumes();
     return;
   }
-  const tela = criarTela(nome + " está transmitindo", stream, false);
-  tela.dataset.dono = id;
-  stream.onremovetrack = () => {
-    if (stream.getTracks().length === 0) { tela.remove(); atualizarVazio(); }
-  };
-  // se o vídeo termina sem removetrack, limpa pelo evento ended
-  stream.getVideoTracks()[0].onended = () => { tela.remove(); atualizarVazio(); };
+  criarTile({ chave: stream.id, dono: par.id, titulo: "", stream, local: false, tipo });
+  stream.onremovetrack = () => { if (!stream.getTracks().length) removerTile(stream.id); };
 }
 
-function criarTela(rotulo, stream, mudo) {
-  const div = document.createElement("div");
-  div.className = "tela";
-  const v = document.createElement("video");
-  v.autoplay = true;
-  v.playsInline = true;
-  v.muted = mudo; // a própria transmissão fica muda para evitar eco
-  v.srcObject = stream;
-  const r = document.createElement("span");
-  r.className = "rotulo";
-  r.textContent = rotulo;
-  const b = document.createElement("button");
-  b.className = "expandir";
-  b.textContent = "Tela cheia";
-  b.onclick = () => v.requestFullscreen && v.requestFullscreen();
-  div.append(v, r, b);
-  $("palco").append(div);
-  atualizarVazio();
-  return div;
-}
-
-function atualizarVazio() {
-  const tem = $("palco").querySelector(".tela");
-  $("vazio").classList.toggle("oculto", !!tem);
-}
-
-// ---------- transmissão de tela ----------
-function enviarTela(par) {
-  par.enviosTela = telaStream.getTracks().map((t) => par.pc.addTrack(t, telaStream));
-}
-
-$("btnTela").addEventListener("click", async () => {
-  if (telaStream) return pararTela();
-  try {
-    telaStream = await navigator.mediaDevices.getDisplayMedia({
-      video: { frameRate: 30 },
-      audio: true, // áudio do sistema/aba, se o navegador permitir
-    });
-  } catch (err) {
-    return; // a pessoa cancelou
+function aplicarVolumes() {
+  const m = CFG.mestre / 100;
+  for (const par of Object.values(E.pares)) {
+    if (!par.audioEl) continue;
+    const v = volDe(uidDe(par.id));
+    par.audioEl.volume = Math.min(1, (m * v.vol) / 100);
+    par.audioEl.muted = E.fone || v.mudo;
   }
-  Object.values(pares).forEach(enviarTela);
-
-  const previa = criarTela("Sua transmissão", telaStream, true);
-  previa.id = "previa";
-  $("btnTela").textContent = "Parar transmissão";
-  $("btnTela").classList.add("ativo");
-
-  // quando o usuário clica em "Parar compartilhamento" na barra do navegador
-  telaStream.getVideoTracks()[0].onended = pararTela;
-});
-
-function pararTela() {
-  if (!telaStream) return;
-  telaStream.getTracks().forEach((t) => t.stop());
-  Object.values(pares).forEach((par) => {
-    par.enviosTela.forEach((s) => { try { par.pc.removeTrack(s); } catch (e) {} });
-    par.enviosTela = [];
-  });
-  telaStream = null;
-  const p = $("previa");
-  if (p) p.remove();
-  atualizarVazio();
-  $("btnTela").textContent = "Compartilhar tela";
-  $("btnTela").classList.remove("ativo");
+  Object.values(E.tiles).forEach((t) => t.aplicarVolume && t.aplicarVolume());
 }
 
-// ---------- controles ----------
-$("btnMic").addEventListener("click", () => {
-  if (!micStream) return;
-  const track = micStream.getAudioTracks()[0];
-  track.enabled = !track.enabled;
-  $("btnMic").textContent = track.enabled ? "Silenciar microfone" : "Ativar microfone";
-  $("btnMic").classList.toggle("ativo", !track.enabled);
-});
+// ====================================================================
+// quadros de vídeo (câmeras e telas)
+// ====================================================================
+function criarTile({ chave, dono, stream, local, tipo }) {
+  const wrap = el("div", "tela");
+  const v = el("video");
+  v.playsInline = true; v.autoplay = true; v.muted = true;
+  const rotulo = el("span", "rotulo");
+  const t = { chave, dono, wrap, v, tipo, vol: 100, assistindo: local };
+  const texto = (tp) => (dono === E.eu ? (tp === "camera" ? "Sua câmera" : "Sua tela") : nomeDe(dono) + (tp === "camera" ? " — câmera" : " — tela"));
+  rotulo.textContent = texto(tipo);
 
-$("btnSair").addEventListener("click", () => {
-  pararTela();
-  if (micStream) micStream.getTracks().forEach((t) => t.stop());
-  location.href = location.pathname + "?sala=" + encodeURIComponent(sala);
-});
+  if (local) {
+    v.srcObject = stream;
+    if (tipo === "camera") v.classList.add("espelho");
+    wrap.append(v, rotulo);
+  } else {
+    const capa = el("div", "capa");
+    const msg = el("p");
+    const ver = el("button", "botao primario", "Assistir");
+    capa.append(msg, ver);
 
-$("copiar").addEventListener("click", async () => {
-  const link = location.origin + location.pathname + "?sala=" + encodeURIComponent(sala);
-  try {
-    await navigator.clipboard.writeText(link);
-    $("copiar").textContent = "Link copiado";
-  } catch (e) {
-    prompt("Copie o link:", link);
+    const barra = el("div", "barra oculto");
+    const temAudio = stream.getAudioTracks().length > 0;
+    const vol = el("input"); vol.type = "range"; vol.min = 0; vol.max = 100; vol.value = 100;
+    vol.setAttribute("aria-label", "Volume da transmissão");
+    vol.oninput = () => { t.vol = +vol.value; t.aplicarVolume(); };
+    const parar = el("button", "botao", "Parar de assistir");
+    const cheia = el("button", "botao", "Tela cheia");
+    if (temAudio) barra.append(icone("volume"), vol);
+    barra.append(el("span", "", ""), parar, cheia);
+    barra.children[temAudio ? 2 : 0].style.flex = "1";
+
+    ver.onclick = () => {
+      t.assistindo = true;
+      v.srcObject = stream;
+      t.aplicarVolume();
+      v.play().catch(() => {});
+      capa.classList.add("oculto"); barra.classList.remove("oculto");
+    };
+    parar.onclick = () => {
+      t.assistindo = false;
+      v.srcObject = null;
+      capa.classList.remove("oculto"); barra.classList.add("oculto");
+    };
+    cheia.onclick = () => (wrap.requestFullscreen ? wrap.requestFullscreen() : v.requestFullscreen());
+
+    t.definirTipo = (tp) => {
+      t.tipo = tp;
+      rotulo.textContent = texto(tp);
+      msg.textContent = nomeDe(dono) + (tp === "camera" ? " ligou a câmera." : " está transmitindo a tela.");
+      if (temAudio && tp === "camera") { /* câmera normalmente não traz áudio */ }
+    };
+    t.definirTipo(tipo);
+    t.aplicarVolume = () => {
+      v.muted = E.fone || !t.assistindo;
+      v.volume = Math.min(1, (CFG.mestre / 100) * (t.vol / 100));
+    };
+    wrap.append(v, rotulo, capa, barra);
   }
-  setTimeout(() => ($("copiar").textContent = "Copiar link de convite"), 2000);
-});
+  E.tiles[chave] = t;
+  $("telas").append(wrap);
+  atualizarPalco();
+  return t;
+}
 
-// ---------- chat e lista de membros ----------
-$("formChat").addEventListener("submit", (e) => {
-  e.preventDefault();
-  const t = $("textoChat").value.trim();
+function removerTile(chave) {
+  const t = E.tiles[chave];
   if (!t) return;
-  socket.emit("chat", t);
-  $("textoChat").value = "";
+  t.v.srcObject = null;
+  t.wrap.remove();
+  delete E.tiles[chave];
+  atualizarPalco();
+}
+
+function atualizarPalco() {
+  const mostrar = $("telas").children.length > 0 && E.vozCanal && E.canalAtivo === E.vozCanal;
+  $("palco").classList.toggle("oculto", !mostrar);
+}
+
+// ====================================================================
+// menu de volume de um amigo
+// ====================================================================
+function abrirMenuUsuario(m, ev) {
+  ev.stopPropagation();
+  if (m.id === E.eu) return;
+  const v = volDe(m.uid);
+  E.menuUid = m.uid;
+  $("muNome").textContent = m.nome;
+  $("muVolume").value = v.vol;
+  $("muMudo").checked = v.mudo;
+  const menu = $("menuUsuario");
+  menu.classList.remove("oculto");
+  const r = ev.currentTarget.getBoundingClientRect();
+  const x = Math.min(window.innerWidth - 246, r.left + 20);
+  const y = Math.min(window.innerHeight - 190, r.bottom + 4);
+  menu.style.left = Math.max(8, x) + "px";
+  menu.style.top = Math.max(8, y) + "px";
+}
+$("muVolume").oninput = () => { volDe(E.menuUid).vol = +$("muVolume").value; salvarVols(); aplicarVolumes(); };
+$("muMudo").onchange = () => { volDe(E.menuUid).mudo = $("muMudo").checked; salvarVols(); aplicarVolumes(); };
+document.addEventListener("click", (e) => { if (!$("menuUsuario").contains(e.target)) $("menuUsuario").classList.add("oculto"); });
+
+// ====================================================================
+// janela de configurações
+// ====================================================================
+async function preencherDispositivos() {
+  let lista = [];
+  try { lista = await navigator.mediaDevices.enumerateDevices(); } catch {}
+  const preencher = (sel, tipo, atual, padrao) => {
+    sel.replaceChildren();
+    const o0 = el("option", "", padrao); o0.value = ""; sel.append(o0);
+    let n = 0;
+    lista.filter((d) => d.kind === tipo).forEach((d) => {
+      const o = el("option", "", d.label || (tipo === "audioinput" ? "Microfone " : "Câmera ") + ++n);
+      o.value = d.deviceId; sel.append(o);
+    });
+    sel.value = atual;
+  };
+  preencher($("selMic"), "audioinput", CFG.micId, "Padrão do sistema");
+  preencher($("selCam"), "videoinput", CFG.camId, "Padrão do sistema");
+}
+
+function marcarConfig() {
+  $("rgGanho").value = CFG.ganho; $("vGanho").textContent = CFG.ganho + "%";
+  $("rgLimiar").value = CFG.limiar; $("marcador").style.left = CFG.limiar + "%";
+  $("ckRuido").checked = CFG.ruido; $("ckEco").checked = CFG.eco; $("ckAgc").checked = CFG.agc;
+  $("rgMestre").value = CFG.mestre; $("vMestre").textContent = CFG.mestre + "%";
+}
+
+$("btnConfig").onclick = async () => {
+  marcarConfig();
+  $("config").showModal();
+  const ok = await garantirAudio(); // precisa do microfone para mostrar o medidor
+  if (!ok) aviso("Libere o microfone no navegador para testar a sensibilidade.");
+  await preencherDispositivos();
+};
+$("config").addEventListener("close", () => { if (!E.vozCanal) pararAudio(); });
+
+$("rgGanho").oninput = () => {
+  CFG.ganho = +$("rgGanho").value; $("vGanho").textContent = CFG.ganho + "%";
+  if (A.ganho) A.ganho.gain.value = CFG.ganho / 100;
+  salvarCfg();
+};
+$("rgLimiar").oninput = () => { CFG.limiar = +$("rgLimiar").value; $("marcador").style.left = CFG.limiar + "%"; salvarCfg(); };
+$("rgMestre").oninput = () => { CFG.mestre = +$("rgMestre").value; $("vMestre").textContent = CFG.mestre + "%"; salvarCfg(); aplicarVolumes(); };
+[["ckRuido", "ruido"], ["ckEco", "eco"], ["ckAgc", "agc"]].forEach(([id, chave]) => {
+  $(id).onchange = async () => { CFG[chave] = $(id).checked; salvarCfg(); if (A.ctx) await trocarMicrofone(); };
 });
+$("selMic").onchange = async () => { CFG.micId = $("selMic").value; salvarCfg(); if (A.ctx) await trocarMicrofone(); };
+$("selCam").onchange = () => { CFG.camId = $("selCam").value; salvarCfg(); };
 
-function mensagemSistema(texto) {
-  const d = document.createElement("div");
-  d.className = "msg sistema";
-  d.textContent = texto;
-  $("mensagens").append(d);
-  $("mensagens").scrollTop = 1e9;
-}
-
-function adicionarMembro(id, nome) {
-  const li = document.createElement("li");
-  li.dataset.membro = id;
-  li.textContent = nome;
-  $("membros").append(li);
-}
+renderControles();
 </script>
 </body>
 </html>
